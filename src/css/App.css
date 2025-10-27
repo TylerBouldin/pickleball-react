@@ -1,0 +1,48 @@
+:root {
+    --primary-blue: #4a9eff;
+    --black: #000000;
+    --white: #ffffff;
+    --light-gray: #000000;
+    --dark-gray: #000000;
+    --border-color: #4a9eff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    border: 2px solid var(--border-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.App {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    background-color: var(--white);
+    padding: 0;
+    min-height: 70vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 0;
+}
+

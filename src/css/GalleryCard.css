@@ -1,0 +1,45 @@
+.gallery-card {
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.gallery-card:hover {
+    transform: translateY(-5px);
+}
+
+.gallery-card-image {
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+}
+
+.gallery-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.gallery-card:hover .gallery-card-image img {
+    transform: scale(1.05);
+}
+
+.gallery-card-info {
+    padding: 20px;
+}
+
+.gallery-card-info h3 {
+    font-size: 1.4em;
+    color: var(--primary-blue);
+    margin-bottom: 10px;
+}
+
+.gallery-card-info p {
+    font-size: 1em;
+    line-height: 1.5;
+    color: var(--dark-gray);
+}
+

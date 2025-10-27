@@ -1,0 +1,43 @@
+.instruction-card {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    background-color: var(--white);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.instruction-image {
+    flex: 1;
+}
+
+.instruction-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.instruction-content {
+    flex: 1;
+}
+
+.instruction-content h3 {
+    font-size: 1.6em;
+    color: var(--primary-blue);
+    margin-bottom: 15px;
+}
+
+.instruction-content p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: var(--dark-gray);
+}
+
+@media (max-width: 768px) {
+    .instruction-card {
+        flex-direction: column;
+    }
+}
+

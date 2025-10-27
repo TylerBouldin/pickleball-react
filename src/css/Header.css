@@ -1,0 +1,44 @@
+header {
+    background-color: var(--primary-blue);
+    padding: 20px;
+    color: var(--dark-gray);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header h1 {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: var(--dark-gray);
+}
+
+.email {
+    display: flex;
+    align-items: center;
+    font-size: 1.1em;
+    color: var(--dark-gray);
+}
+
+.envelope {
+    margin-right: 8px;
+    font-size: 0.9em;
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    header h1 {
+        font-size: 2em;
+    }
+}
+

@@ -1,70 +1,101 @@
-# Getting Started with Create React App
+# The Pickleball Guys - React Website
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A fully responsive React website for The Pickleball Guys, converted from the original HTML/CSS site in the part7 folder.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Responsive design that works on all screen sizes
+- React Router for navigation between pages
+- Component-based architecture
+- Individual stylesheets for pages and components
 
-### `npm start`
+## Pages
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Home** - Hero section, features, about preview, services, gallery preview, and contact section
+- **How To Play** - Comprehensive guide with instruction cards
+- **Shop** - Product catalog with product cards
+- **Gallery** - Photo gallery with gallery cards
+- **Near You** - Local courts and groups information
+- **About Us** - Information about The Pickleball Guys
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Components
 
-### `npm test`
+- **Header** - Site header with logo and email
+- **Nav** - Navigation menu with React Router links
+- **Footer** - Site footer with contact info and quick links
+- **FeatureCard** - Reusable card for displaying features
+- **InstructionCard** - Card for displaying how-to-play instructions
+- **ProductCard** - Card for displaying shop products
+- **GalleryCard** - Card for displaying gallery images
+- **CourtCard** - Card for displaying court information
+- **GroupItem** - List item for displaying group information
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Running the App
 
-### `npm run build`
+```bash
+npm start
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Runs the app in development mode at [http://localhost:3000](http://localhost:3000)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Building for Production
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm run build
+```
 
-### `npm run eject`
+Builds the app for production to the `build` folder.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Project Structure
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+src/
+├── components/
+│   ├── Header.jsx
+│   ├── Nav.jsx
+│   ├── Footer.jsx
+│   ├── FeatureCard.jsx
+│   ├── InstructionCard.jsx
+│   ├── ProductCard.jsx
+│   ├── GalleryCard.jsx
+│   ├── CourtCard.jsx
+│   └── GroupItem.jsx
+├── pages/
+│   ├── Home.jsx
+│   ├── AboutUs.jsx
+│   ├── HowToPlay.jsx
+│   ├── Shop.jsx
+│   ├── Gallery.jsx
+│   └── NearYou.jsx
+├── css/
+│   ├── App.css
+│   ├── index.css
+│   ├── Header.css
+│   ├── Nav.css
+│   ├── Footer.css
+│   ├── FeatureCard.css
+│   ├── InstructionCard.css
+│   ├── ProductCard.css
+│   ├── GalleryCard.css
+│   ├── CourtCard.css
+│   ├── GroupItem.css
+│   ├── Home.css
+│   ├── AboutUs.css
+│   ├── HowToPlay.css
+│   ├── Shop.css
+│   ├── Gallery.css
+│   └── NearYou.css
+├── App.jsx
+└── index.js
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+public/
+└── images/
+    └── (all pickleball images)
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Notes
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Forms functionality not yet implemented
+- Toggle navigation menu not yet implemented
+- JSON data integration will be added in future updates
+- iFrames (map) will be added in future updates

@@ -1,0 +1,16 @@
+.group-item {
+    background-color: var(--white);
+    margin-bottom: 15px;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-blue);
+    color: var(--dark-gray);
+    font-size: 1.1em;
+    line-height: 1.5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.group-item strong {
+    color: var(--primary-blue);
+}
+
