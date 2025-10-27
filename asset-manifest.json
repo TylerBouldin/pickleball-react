@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/pickleball-react/static/css/main.6b88052b.css",
+    "main.js": "/pickleball-react/static/js/main.07ea8c6b.js",
+    "index.html": "/pickleball-react/index.html",
+    "main.6b88052b.css.map": "/pickleball-react/static/css/main.6b88052b.css.map",
+    "main.07ea8c6b.js.map": "/pickleball-react/static/js/main.07ea8c6b.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6b88052b.css",
+    "static/js/main.07ea8c6b.js"
+  ]
+}
