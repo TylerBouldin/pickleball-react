@@ -40,12 +40,20 @@ function NearYou() {
         </div>
         
         <div className="map-section">
-          <div className="map-placeholder">
+          <div className="map-container">
             <h3>Court Locations Map</h3>
-            <div className="map-icon">
-              <img src="/images/picklecourt.webp" alt="Pickleball Court" />
+            <div className="map-wrapper">
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d46454.44505772415!2d-81.22300744056702!3d33.9840968405181!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88f897904655ebd9%3A0x5bee2f04fb99468!2s24%20Hour%20Pickleball%20Club!5e1!3m2!1sen!2sus!4v1762129362922!5m2!1sen!2sus" 
+                width="600" 
+                height="450" 
+                style={{border:0}} 
+                allowFullScreen="" 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                title="24 Hour Pickleball Club Location"
+              />
             </div>
-            <p>Map will be integrated in a future update</p>
           </div>
         </div>
       </div>

@@ -11,56 +11,56 @@ function Shop() {
       <div className="shop-grid">
         <ProductCard 
           name="Pro Paddle Set"
-          imgName="/images/proPaddleSet.jpg"
+          imgName={`${process.env.PUBLIC_URL}/images/proPaddleSet.jpg`}
           price="$89.99"
           description="High-performance paddle set for competitive players"
           skillLevel="Advanced"
         />
         <ProductCard 
           name="Pickleball Balls (6-pack)"
-          imgName="/images/pickleBallz.jpg"
+          imgName={`${process.env.PUBLIC_URL}/images/pickleBallz.jpg`}
           price="$24.99"
           description="Durable outdoor pickleballs"
           skillLevel="All Levels"
         />
         <ProductCard 
           name="Beginner Paddle"
-          imgName="/images/beginPaddle.webp"
+          imgName={`${process.env.PUBLIC_URL}/images/beginPaddle.webp`}
           price="$45.99"
           description="Perfect starter paddle for new players"
           skillLevel="Beginner"
         />
         <ProductCard 
           name="Court Shoes"
-          imgName="/images/pickleShoes.webp"
+          imgName={`${process.env.PUBLIC_URL}/images/pickleShoes.webp`}
           price="$79.99"
           description="Comfortable court shoes with great traction"
           skillLevel="All Levels"
         />
         <ProductCard 
           name="Paddle Cover"
-          imgName="/images/paddleCover.jpeg"
+          imgName={`${process.env.PUBLIC_URL}/images/paddleCover.jpeg`}
           price="$19.99"
           description="Protective cover for your paddle"
           skillLevel="All Levels"
         />
         <ProductCard 
           name="Grip Tape"
-          imgName="/images/pickleGrip.webp"
+          imgName={`${process.env.PUBLIC_URL}/images/pickleGrip.webp`}
           price="$12.99"
           description="Non-slip grip tape for better control"
           skillLevel="All Levels"
         />
         <ProductCard 
           name="Team Uniform"
-          imgName="/images/pickleUni.jpg"
+          imgName={`${process.env.PUBLIC_URL}/images/pickleUni.jpg`}
           price="$39.99"
           description="Comfortable team uniform for tournaments"
           skillLevel="All Levels"
         />
         <ProductCard 
           name="Equipment Bag"
-          imgName="/images/bagpick.webp"
+          imgName={`${process.env.PUBLIC_URL}/images/bagpick.webp`}
           price="$34.99"
           description="Spacious bag to carry all your gear"
           skillLevel="All Levels"

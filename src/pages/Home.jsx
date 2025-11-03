@@ -1,9 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import FeatureCard from '../components/FeatureCard.jsx';
 import '../css/Home.css';
 
 function Home() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  const slides = [
+    {
+      src: 'coolPicklePicture.webp',
+      alt: 'Cool pickleball action'
+    },
+    {
+      src: 'funnyGUyPuck.jpg',
+      alt: 'Fun pickleball moment'
+    },
+    {
+      src: 'gpaActionPickle.webp',
+      alt: 'GPA action shot'
+    },
+    {
+      src: 'girlSunPickle.webp',
+      alt: 'Pickleball in the sun'
+    }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, [slides.length]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
+
   return (
     <div className="content-wrapper">
       <section className="hero-section">
@@ -16,7 +57,35 @@ function Home() {
           </div>
         </div>
         <div className="hero-image">
-          <img src="/images/grouppickleball.jpg" alt="Pickleball players in action" />
+          <div className="slideshow-container">
+            {slides.map((slide, index) => (
+              <div
+                key={index}
+                className={`slide ${index === currentSlide ? 'active' : ''}`}
+              >
+                <img 
+                  src={`${process.env.PUBLIC_URL}/images/${slide.src}`} 
+                  alt={slide.alt}
+                />
+              </div>
+            ))}
+            <button className="slideshow-btn prev" onClick={prevSlide}>
+              &#8249;
+            </button>
+            <button className="slideshow-btn next" onClick={nextSlide}>
+              &#8250;
+            </button>
+            <div className="slideshow-indicators">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  className={`indicator ${index === currentSlide ? 'active' : ''}`}
+                  onClick={() => goToSlide(index)}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -54,7 +123,7 @@ function Home() {
           <Link to="/about-us" className="learn-more-link">Learn More About Us →</Link>
         </div>
         <div className="about-image">
-          <img src="/images/thoughtfulpickleball.webp" alt="The Pickleball Guys team" />
+          <img src={`${process.env.PUBLIC_URL}/images/thoughtfulpickleball.webp`} alt="The Pickleball Guys team" />
         </div>
       </section>
 
@@ -84,21 +153,21 @@ function Home() {
         <p>Check out our collection of pickleball action shots and community events!</p>
         <div className="gallery-preview-grid">
           <Link to="/gallery" className="gallery-preview-item">
-            <img src="/images/grouppickleball.jpg" alt="Group playing pickleball" />
+            <img src={`${process.env.PUBLIC_URL}/images/grouppickleball.jpg`} alt="Group playing pickleball" />
             <div className="gallery-overlay">
               <h4>Community Play</h4>
               <p>View Gallery →</p>
             </div>
           </Link>
           <Link to="/gallery" className="gallery-preview-item">
-            <img src="/images/teamworkpickle.webp" alt="Teamwork in pickleball" />
+            <img src={`${process.env.PUBLIC_URL}/images/teamworkpickle.webp`} alt="Teamwork in pickleball" />
             <div className="gallery-overlay">
               <h4>Teamwork</h4>
               <p>View Gallery →</p>
             </div>
           </Link>
           <Link to="/gallery" className="gallery-preview-item">
-            <img src="/images/stratpickle.webp" alt="Strategic play" />
+            <img src={`${process.env.PUBLIC_URL}/images/stratpickle.webp`} alt="Strategic play" />
             <div className="gallery-overlay">
               <h4>Strategy</h4>
               <p>View Gallery →</p>

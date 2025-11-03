@@ -1,47 +1,215 @@
+.about-hero {
+    background: linear-gradient(135deg, var(--primary-blue), #004499);
+    color: var(--white);
+    padding: 80px 30px;
+    text-align: center;
+}
+
+.about-hero h1 {
+    font-size: 3.5em;
+    margin-bottom: 15px;
+    color: var(--white);
+    font-weight: bold;
+}
+
+.hero-subtitle {
+    font-size: 1.4em;
+    color: var(--white);
+    opacity: 0.95;
+}
+
 .about-content {
-    padding: 40px 30px;
+    padding: 0;
 }
 
-.about-content h2 {
-    font-size: 2.5em;
+.about-section {
+    padding: 60px 30px;
+}
+
+.about-section.alt-background {
+    background-color: #f8f9fa;
+}
+
+.section-content {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.about-section h2 {
+    font-size: 2.8em;
     color: var(--primary-blue);
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.about-section p {
+    font-size: 1.15em;
+    line-height: 1.8;
+    color: #333;
     margin-bottom: 25px;
+    text-align: center;
 }
 
-.about-content h3 {
-    font-size: 1.8em;
-    color: var(--primary-blue);
-    margin-top: 30px;
+.contact-intro {
+    margin-bottom: 40px;
+}
+
+.services-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.service-item {
+    background-color: var(--white);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.service-icon {
+    font-size: 3em;
     margin-bottom: 15px;
 }
 
-.about-content p {
-    font-size: 1.1em;
+.service-text h4 {
+    font-size: 1.4em;
+    color: var(--primary-blue);
+    margin-bottom: 12px;
+    font-weight: bold;
+}
+
+.service-text p {
+    font-size: 1em;
+    color: #666;
     line-height: 1.6;
-    color: var(--dark-gray);
+    margin: 0;
+    text-align: center;
+}
+
+.contact-form {
+    margin: 40px auto 0;
+    max-width: 600px;
+    padding: 40px;
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+}
+
+.form-group {
     margin-bottom: 20px;
 }
 
-.about-content ul {
-    list-style-type: none;
-    padding: 0;
-    margin-left: 20px;
-}
-
-.about-content li {
-    padding: 10px 0;
-    color: var(--dark-gray);
-    font-size: 1.1em;
-    position: relative;
-    padding-left: 25px;
-}
-
-.about-content li::before {
-    content: "✓";
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
     color: var(--primary-blue);
     font-weight: bold;
-    position: absolute;
-    left: 0;
-    font-size: 1.2em;
+    font-size: 1em;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1em;
+    font-family: Arial, sans-serif;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.submit-btn {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    padding: 15px 40px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.submit-btn:hover {
+    background-color: #3a8eef;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 158, 255, 0.4);
+}
+
+.form-message {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.form-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 2px solid #c3e6cb;
+}
+
+.form-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 2px solid #f5c6cb;
+}
+
+@media (max-width: 768px) {
+    .about-hero {
+        padding: 50px 20px;
+    }
+
+    .about-hero h1 {
+        font-size: 2.5em;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2em;
+    }
+
+    .about-section {
+        padding: 40px 20px;
+    }
+
+    .about-section h2 {
+        font-size: 2.2em;
+    }
+
+    .services-list {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .contact-form {
+        padding: 25px;
+        margin-top: 30px;
+    }
 }
 
