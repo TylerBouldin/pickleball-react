@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/pickleball-react/static/css/main.e75c7953.css",
-    "main.js": "/pickleball-react/static/js/main.8cc01bc7.js",
+    "main.css": "/pickleball-react/static/css/main.accb3a95.css",
+    "main.js": "/pickleball-react/static/js/main.a20ee54d.js",
     "index.html": "/pickleball-react/index.html",
-    "main.e75c7953.css.map": "/pickleball-react/static/css/main.e75c7953.css.map",
-    "main.8cc01bc7.js.map": "/pickleball-react/static/js/main.8cc01bc7.js.map"
+    "main.accb3a95.css.map": "/pickleball-react/static/css/main.accb3a95.css.map",
+    "main.a20ee54d.js.map": "/pickleball-react/static/js/main.a20ee54d.js.map"
   },
   "entrypoints": [
-    "static/css/main.e75c7953.css",
-    "static/js/main.8cc01bc7.js"
+    "static/css/main.accb3a95.css",
+    "static/js/main.a20ee54d.js"
   ]
 }
