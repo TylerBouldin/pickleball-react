@@ -1,9 +1,89 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import CourtCard from '../components/CourtCard.jsx';
 import GroupItem from '../components/GroupItem.jsx';
+import Modal from '../components/Modal.jsx';
 import '../css/NearYou.css';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
 function NearYou() {
+  const [courts, setCourts] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [selectedCourt, setSelectedCourt] = useState(null);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [isCourtModalOpen, setIsCourtModalOpen] = useState(false);
+  const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [courtsResponse, groupsResponse] = await Promise.all([
+        fetch(`${API_URL}/api/courts`),
+        fetch(`${API_URL}/api/groups`)
+      ]);
+
+      if (!courtsResponse.ok || !groupsResponse.ok) {
+        throw new Error('Failed to fetch data');
+      }
+
+      const courtsData = await courtsResponse.json();
+      const groupsData = await groupsResponse.json();
+
+      setCourts(courtsData);
+      setGroups(groupsData);
+      setError(null);
+    } catch (err) {
+      setError('Unable to load data. Please try again later.');
+      console.error('Error fetching data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCourtClick = (court) => {
+    setSelectedCourt(court);
+    setIsCourtModalOpen(true);
+  };
+
+  const handleGroupClick = (group) => {
+    setSelectedGroup(group);
+    setIsGroupModalOpen(true);
+  };
+
+  const closeCourtModal = () => {
+    setIsCourtModalOpen(false);
+    setSelectedCourt(null);
+  };
+
+  const closeGroupModal = () => {
+    setIsGroupModalOpen(false);
+    setSelectedGroup(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="content-wrapper">
+        <h2>Find Pickleball Courts Near You</h2>
+        <p className="loading-message">Loading courts and groups...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="content-wrapper">
+        <h2>Find Pickleball Courts Near You</h2>
+        <p className="error-message">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="content-wrapper">
       <h2>Find Pickleball Courts Near You</h2>
@@ -14,27 +94,17 @@ function NearYou() {
           <div className="address-box">
             <h3>Popular Local Courts</h3>
             <div id="courts-container">
-              <CourtCard 
-                name="Community Recreation Center"
-                address="123 Main Street"
-                hours="Open: 6 AM - 10 PM Daily"
-                courts="4 outdoor courts, 2 indoor courts"
-                amenities="Equipment rental available"
-              />
-              <CourtCard 
-                name="Riverside Park"
-                address="456 Oak Avenue"
-                hours="Open: Dawn to Dusk"
-                courts="6 outdoor courts"
-                amenities="Free to play, bring your own equipment"
-              />
-              <CourtCard 
-                name="Sports Complex"
-                address="789 Pine Street"
-                hours="Open: 7 AM - 9 PM"
-                courts="8 outdoor courts, 4 indoor courts"
-                amenities="Lessons and tournaments available"
-              />
+              {courts.map(court => (
+                <div key={court.id} onClick={() => handleCourtClick(court)} className="clickable-item">
+                  <CourtCard 
+                    name={court.name}
+                    address={court.address}
+                    hours={court.hours}
+                    courts={court.courts}
+                    amenities={court.amenities}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -62,40 +132,83 @@ function NearYou() {
         <h3>Join Local Groups</h3>
         <p>Connect with other pickleball players in your area:</p>
         <ul id="groups-container">
-          <GroupItem 
-            name="Tuesday Night Pickleball"
-            location="Community Center"
-            time="6-8 PM"
-            day="Tuesday"
-            skillLevel="All Levels"
-            description="Weekly community play"
-          />
-          <GroupItem 
-            name="Weekend Warriors"
-            location="Riverside Park"
-            time="Saturday 9 AM"
-            day="Saturday"
-            skillLevel="Intermediate"
-            description="Weekend morning games"
-          />
-          <GroupItem 
-            name="Beginner's Club"
-            location="Sports Complex"
-            time="Thursday 7 PM"
-            day="Thursday"
-            skillLevel="Beginner"
-            description="Perfect for new players"
-          />
-          <GroupItem 
-            name="Senior Pickleball"
-            location="Community Center"
-            time="Monday/Wednesday 10 AM"
-            day="Monday/Wednesday"
-            skillLevel="All Ages"
-            description="Senior-friendly games"
-          />
+          {groups.map(group => (
+            <div key={group.id} onClick={() => handleGroupClick(group)} className="clickable-item">
+              <GroupItem 
+                name={group.name}
+                location={group.location}
+                time={group.time}
+                day={group.day}
+                skillLevel={group.skillLevel}
+                description={group.description}
+              />
+            </div>
+          ))}
         </ul>
       </div>
+
+      <Modal isOpen={isCourtModalOpen} onClose={closeCourtModal} title={selectedCourt?.name || ''}>
+        {selectedCourt && (
+          <div>
+            <div className="modal-info-grid">
+              <div className="modal-info-item">
+                <strong>Address</strong>
+                <span>{selectedCourt.address}</span>
+              </div>
+              <div className="modal-info-item">
+                <strong>Hours</strong>
+                <span>{selectedCourt.hours}</span>
+              </div>
+              <div className="modal-info-item">
+                <strong>Phone</strong>
+                <span>{selectedCourt.phone}</span>
+              </div>
+              <div className="modal-info-item">
+                <strong>Fees</strong>
+                <span>{selectedCourt.fees}</span>
+              </div>
+            </div>
+            <h3>Courts Available</h3>
+            <p>{selectedCourt.courts}</p>
+            <h3>Amenities</h3>
+            <p>{selectedCourt.amenities}</p>
+            <h3>Parking</h3>
+            <p>{selectedCourt.parking}</p>
+          </div>
+        )}
+      </Modal>
+
+      <Modal isOpen={isGroupModalOpen} onClose={closeGroupModal} title={selectedGroup?.name || ''}>
+        {selectedGroup && (
+          <div>
+            <div className="modal-info-grid">
+              <div className="modal-info-item">
+                <strong>Location</strong>
+                <span>{selectedGroup.location}</span>
+              </div>
+              <div className="modal-info-item">
+                <strong>Day</strong>
+                <span>{selectedGroup.day}</span>
+              </div>
+              <div className="modal-info-item">
+                <strong>Time</strong>
+                <span>{selectedGroup.time}</span>
+              </div>
+              <div className="modal-info-item">
+                <strong>Skill Level</strong>
+                <span>{selectedGroup.skillLevel}</span>
+              </div>
+            </div>
+            <h3>About</h3>
+            <p>{selectedGroup.description}</p>
+            <h3>Organizer</h3>
+            <p><strong>{selectedGroup.organizer}</strong></p>
+            <p>Contact: {selectedGroup.contactEmail}</p>
+            <h3>Average Attendance</h3>
+            <p>{selectedGroup.averageAttendance}</p>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
