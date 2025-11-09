@@ -176,10 +176,6 @@ function Home() {
         </div>
       </section>
 
-      <section className="contact-section">
-        <h3>Contact Me</h3>
-        <p>Have questions or want to get in touch? Send us a message!</p>
-      </section>
     </div>
   );
 }
