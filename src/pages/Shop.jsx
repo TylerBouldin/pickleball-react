@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard.jsx';
 import Modal from '../components/Modal.jsx';
@@ -110,4 +111,5 @@ function Shop() {
 }
 
 export default Shop;
+
 
