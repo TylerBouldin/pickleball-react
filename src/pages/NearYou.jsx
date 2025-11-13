@@ -5,7 +5,7 @@ import GroupItem from '../components/GroupItem.jsx';
 import Modal from '../components/Modal.jsx';
 import '../css/NearYou.css';
 
-const API_URL = process.env.REACT_APP_API_URL; //|| 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_API_URL;
 
 function NearYou() {
   const [courts, setCourts] = useState([]);
@@ -16,6 +16,21 @@ function NearYou() {
   const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    address: '',
+    hours: '',
+    courts: '',
+    amenities: '',
+    phone: '',
+    parking: '',
+    fees: ''
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const [submitStatus, setSubmitStatus] = useState(null);
+  const [submitMessage, setSubmitMessage] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -65,6 +80,139 @@ function NearYou() {
   const closeGroupModal = () => {
     setIsGroupModalOpen(false);
     setSelectedGroup(null);
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!formData.name.trim()) {
+      errors.name = 'Court name is required';
+    }
+    
+    if (!formData.address.trim()) {
+      errors.address = 'Address is required';
+    }
+    
+    if (!formData.hours.trim()) {
+      errors.hours = 'Hours are required';
+    }
+    
+    if (!formData.courts.trim()) {
+      errors.courts = 'Court information is required';
+    }
+    
+    if (!formData.amenities.trim()) {
+      errors.amenities = 'Amenities are required';
+    }
+    
+    const phonePattern = /^[\d\s\-\(\)]+$/;
+    if (!formData.phone.trim()) {
+      errors.phone = 'Phone number is required';
+    } else if (!phonePattern.test(formData.phone)) {
+      errors.phone = 'Phone number must contain only digits, spaces, dashes, and parentheses';
+    } else if (formData.phone.replace(/\D/g, '').length < 10) {
+      errors.phone = 'Phone number must be at least 10 digits';
+    }
+    
+    if (!formData.parking.trim()) {
+      errors.parking = 'Parking information is required';
+    }
+    
+    if (!formData.fees.trim()) {
+      errors.fees = 'Fee information is required';
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    if (formErrors[name]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+    if (submitStatus) {
+      setSubmitStatus(null);
+      setSubmitMessage('');
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      setSubmitStatus('error');
+      setSubmitMessage('Please fix the errors in the form before submitting.');
+      return;
+    }
+
+    try {
+      const response = await fetch("https://pickle-server.onrender.com/api/courts", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+        mode: 'cors'
+      });
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`Server returned HTML instead of JSON. This usually means the POST endpoint isn't deployed yet. Response: ${text.substring(0, 100)}`);
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.details ? data.details.join(', ') : data.error || 'Failed to add court');
+      }
+
+      setSubmitStatus('success');
+      setSubmitMessage('Court added successfully! It will appear in the list below.');
+      
+      setFormData({
+        name: '',
+        address: '',
+        hours: '',
+        courts: '',
+        amenities: '',
+        phone: '',
+        parking: '',
+        fees: ''
+      });
+      
+      fetchData();
+      
+      setTimeout(() => {
+        setShowForm(false);
+        setSubmitStatus(null);
+        setSubmitMessage('');
+      }, 3000);
+      
+    } catch (err) {
+      setSubmitStatus('error');
+      if (err.message.includes('fetch')) {
+        setSubmitMessage('Network error: Unable to reach the server. Please check your connection and ensure the server is running.');
+      } else {
+        setSubmitMessage(err.message || 'Unable to add court. Please try again later.');
+      }
+      console.error('Form submission error:', err);
+    }
+  };
+
+  const toggleForm = () => {
+    setShowForm(!showForm);
+    setFormErrors({});
+    setSubmitStatus(null);
+    setSubmitMessage('');
   };
 
   if (loading) {
@@ -146,6 +294,148 @@ function NearYou() {
             </div>
           ))}
         </ul>
+      </div>
+
+      <div className="add-court-section">
+        <div className="add-court-header">
+          <h3>Share Your Favorite Court</h3>
+          <p>Know a great pickleball court? Help others discover it by adding it to our list!</p>
+          <button onClick={toggleForm} className="toggle-form-btn">
+            {showForm ? 'Cancel' : 'Add a Court'}
+          </button>
+        </div>
+
+        {showForm && (
+          <form className="court-form" onSubmit={handleSubmit}>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="name">Court Name *</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className={formErrors.name ? 'error' : ''}
+                />
+                {formErrors.name && <span className="error-message">{formErrors.name}</span>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="address">Address *</label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  className={formErrors.address ? 'error' : ''}
+                />
+                {formErrors.address && <span className="error-message">{formErrors.address}</span>}
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="hours">Hours *</label>
+                <input
+                  type="text"
+                  id="hours"
+                  name="hours"
+                  value={formData.hours}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Open: 6 AM - 10 PM Daily"
+                  className={formErrors.hours ? 'error' : ''}
+                />
+                {formErrors.hours && <span className="error-message">{formErrors.hours}</span>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="phone">Phone *</label>
+                <input
+                  type="text"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  placeholder="e.g., (555) 123-4567"
+                  className={formErrors.phone ? 'error' : ''}
+                />
+                {formErrors.phone && <span className="error-message">{formErrors.phone}</span>}
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="courts">Courts Available *</label>
+                <input
+                  type="text"
+                  id="courts"
+                  name="courts"
+                  value={formData.courts}
+                  onChange={handleInputChange}
+                  placeholder="e.g., 4 outdoor courts, 2 indoor courts"
+                  className={formErrors.courts ? 'error' : ''}
+                />
+                {formErrors.courts && <span className="error-message">{formErrors.courts}</span>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="fees">Fees *</label>
+                <input
+                  type="text"
+                  id="fees"
+                  name="fees"
+                  value={formData.fees}
+                  onChange={handleInputChange}
+                  placeholder="e.g., $5 per person per day"
+                  className={formErrors.fees ? 'error' : ''}
+                />
+                {formErrors.fees && <span className="error-message">{formErrors.fees}</span>}
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group full-width">
+                <label htmlFor="amenities">Amenities *</label>
+                <input
+                  type="text"
+                  id="amenities"
+                  name="amenities"
+                  value={formData.amenities}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Equipment rental available"
+                  className={formErrors.amenities ? 'error' : ''}
+                />
+                {formErrors.amenities && <span className="error-message">{formErrors.amenities}</span>}
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group full-width">
+                <label htmlFor="parking">Parking Information *</label>
+                <input
+                  type="text"
+                  id="parking"
+                  name="parking"
+                  value={formData.parking}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Free parking available"
+                  className={formErrors.parking ? 'error' : ''}
+                />
+                {formErrors.parking && <span className="error-message">{formErrors.parking}</span>}
+              </div>
+            </div>
+
+            {submitStatus && (
+              <div className={`submit-message ${submitStatus}`}>
+                {submitMessage}
+              </div>
+            )}
+
+            <button type="submit" className="submit-btn">Submit Court</button>
+          </form>
+        )}
       </div>
 
       <Modal isOpen={isCourtModalOpen} onClose={closeCourtModal} title={selectedCourt?.name || ''}>
