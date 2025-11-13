@@ -5,7 +5,7 @@ import GroupItem from '../components/GroupItem.jsx';
 import Modal from '../components/Modal.jsx';
 import '../css/NearYou.css';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_API_URL; //|| 'http://localhost:3001';
 
 function NearYou() {
   const [courts, setCourts] = useState([]);
@@ -25,8 +25,8 @@ function NearYou() {
     try {
       setLoading(true);
       const [courtsResponse, groupsResponse] = await Promise.all([
-        fetch(`${API_URL}/api/courts`),
-        fetch(`${API_URL}/api/groups`)
+        fetch("https://pickle-server.onrender.com/api/courts"),
+        fetch("https://pickle-server.onrender.com/api/groups")
       ]);
 
       if (!courtsResponse.ok || !groupsResponse.ok) {

@@ -4,7 +4,7 @@ import ProductCard from '../components/ProductCard.jsx';
 import Modal from '../components/Modal.jsx';
 import '../css/Shop.css';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_API_URL; //|| 'http://localhost:3001';
 
 function Shop() {
   const [products, setProducts] = useState([]);
@@ -20,7 +20,8 @@ function Shop() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/api/products`);
+      //const response = await fetch(`${API_URL}/api/products`);
+      const response = await fetch("https://pickle-server.onrender.com/api/products");
       if (!response.ok) {
         throw new Error('Failed to fetch products');
       }
