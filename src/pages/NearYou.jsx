@@ -5,8 +5,6 @@ import GroupItem from '../components/GroupItem.jsx';
 import Modal from '../components/Modal.jsx';
 import '../css/NearYou.css';
 
-const API_URL = process.env.REACT_APP_API_URL;
-
 function NearYou() {
   const [courts, setCourts] = useState([]);
   const [groups, setGroups] = useState([]);
@@ -18,6 +16,7 @@ function NearYou() {
   const [error, setError] = useState(null);
   
   const [showForm, setShowForm] = useState(false);
+  const [editingCourt, setEditingCourt] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -31,6 +30,10 @@ function NearYou() {
   const [formErrors, setFormErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState(null);
   const [submitMessage, setSubmitMessage] = useState('');
+  const [editStatus, setEditStatus] = useState(null);
+  const [editMessage, setEditMessage] = useState('');
+  const [deleteStatus, setDeleteStatus] = useState(null);
+  const [deleteMessage, setDeleteMessage] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -105,7 +108,7 @@ function NearYou() {
       errors.amenities = 'Amenities are required';
     }
     
-    const phonePattern = /^[\d\s\-\(\)]+$/;
+    const phonePattern = /^[\d\s\-()]+$/;
     if (!formData.phone.trim()) {
       errors.phone = 'Phone number is required';
     } else if (!phonePattern.test(formData.phone)) {
@@ -146,6 +149,11 @@ function NearYou() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (editingCourt) {
+      handleEditSubmit(e);
+      return;
+    }
     
     if (!validateForm()) {
       setSubmitStatus('error');
@@ -210,9 +218,166 @@ function NearYou() {
 
   const toggleForm = () => {
     setShowForm(!showForm);
+    setEditingCourt(null);
     setFormErrors({});
     setSubmitStatus(null);
     setSubmitMessage('');
+    setFormData({
+      name: '',
+      address: '',
+      hours: '',
+      courts: '',
+      amenities: '',
+      phone: '',
+      parking: '',
+      fees: ''
+    });
+  };
+
+  const handleEdit = (court) => {
+    setEditingCourt(court);
+    setFormData({
+      name: court.name || '',
+      address: court.address || '',
+      hours: court.hours || '',
+      courts: court.courts || '',
+      amenities: court.amenities || '',
+      phone: court.phone || '',
+      parking: court.parking || '',
+      fees: court.fees || ''
+    });
+    setShowForm(true);
+    setFormErrors({});
+    setSubmitStatus(null);
+    setSubmitMessage('');
+    setEditStatus(null);
+    setEditMessage('');
+    setTimeout(() => {
+      const formSection = document.querySelector('.add-court-section');
+      if (formSection) {
+        formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
+  const handleDelete = async (courtId) => {
+    if (!window.confirm('Are you sure you want to delete this court?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://pickle-server.onrender.com/api/courts/${courtId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors'
+      });
+
+      const contentType = response.headers.get('content-type');
+      
+      if (response.status === 200) {
+        setDeleteStatus('success');
+        setDeleteMessage('Court deleted successfully!');
+        fetchData();
+        setTimeout(() => {
+          setDeleteStatus(null);
+          setDeleteMessage('');
+        }, 3000);
+      } else {
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          throw new Error(data.error || data.message || 'Failed to delete court');
+        } else {
+          const text = await response.text();
+          if (text.includes('Cannot DELETE')) {
+            throw new Error('Delete endpoint not implemented on server');
+          }
+          throw new Error('Failed to delete court');
+        }
+      }
+    } catch (err) {
+      setDeleteStatus('error');
+      setDeleteMessage(err.message || 'Unable to delete court. Please try again later.');
+      console.error('Delete error:', err);
+      setTimeout(() => {
+        setDeleteStatus(null);
+        setDeleteMessage('');
+      }, 3000);
+    }
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      setEditStatus('error');
+      setEditMessage('Please fix the errors in the form before submitting.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://pickle-server.onrender.com/api/courts/${editingCourt.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+        mode: 'cors'
+      });
+
+      const contentType = response.headers.get('content-type');
+      
+      if (response.status === 200) {
+        if (contentType && contentType.includes('application/json')) {
+          await response.json();
+          setEditStatus('success');
+          setEditMessage('Court updated successfully!');
+          
+          setEditingCourt(null);
+          setFormData({
+            name: '',
+            address: '',
+            hours: '',
+            courts: '',
+            amenities: '',
+            phone: '',
+            parking: '',
+            fees: ''
+          });
+          
+          fetchData();
+          
+          setTimeout(() => {
+            setShowForm(false);
+            setEditStatus(null);
+            setEditMessage('');
+          }, 3000);
+        } else {
+          throw new Error('Server returned invalid response format');
+        }
+      } else {
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          throw new Error(data.details ? data.details.join(', ') : data.error || 'Failed to update court');
+        } else {
+          const text = await response.text();
+          if (text.includes('Cannot PUT')) {
+            throw new Error('Edit endpoint not implemented on server');
+          }
+          throw new Error('Failed to update court');
+        }
+      }
+      
+    } catch (err) {
+      setEditStatus('error');
+      if (err.message.includes('fetch')) {
+        setEditMessage('Network error: Unable to reach the server. Please check your connection and ensure the server is running.');
+      } else {
+        setEditMessage(err.message || 'Unable to update court. Please try again later.');
+      }
+      console.error('Edit submission error:', err);
+    }
   };
 
   if (loading) {
@@ -244,17 +409,32 @@ function NearYou() {
             <h3>Popular Local Courts</h3>
             <div id="courts-container">
               {courts.map(court => (
-                <div key={court.id} onClick={() => handleCourtClick(court)} className="clickable-item">
-                  <CourtCard 
-                    name={court.name}
-                    address={court.address}
-                    hours={court.hours}
-                    courts={court.courts}
-                    amenities={court.amenities}
-                  />
+                <div key={court.id} className="court-item-wrapper">
+                  <div onClick={() => handleCourtClick(court)} className="clickable-item">
+                    <CourtCard 
+                      name={court.name}
+                      address={court.address}
+                      hours={court.hours}
+                      courts={court.courts}
+                      amenities={court.amenities}
+                    />
+                  </div>
+                  <div className="court-actions">
+                    <button onClick={(e) => { e.stopPropagation(); handleEdit(court); }} className="edit-btn">
+                      Edit
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); handleDelete(court.id); }} className="delete-btn">
+                      Delete
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
+            {deleteStatus && (
+              <div className={`submit-message ${deleteStatus}`}>
+                {deleteMessage}
+              </div>
+            )}
           </div>
         </div>
         
@@ -298,10 +478,10 @@ function NearYou() {
 
       <div className="add-court-section">
         <div className="add-court-header">
-          <h3>Share Your Favorite Court</h3>
-          <p>Know a great pickleball court? Help others discover it by adding it to our list!</p>
+          <h3>{editingCourt ? 'Edit Court' : 'Share Your Favorite Court'}</h3>
+          <p>{editingCourt ? 'Update the court information below.' : 'Know a great pickleball court? Help others discover it by adding it to our list!'}</p>
           <button onClick={toggleForm} className="toggle-form-btn">
-            {showForm ? 'Cancel' : 'Add a Court'}
+            {showForm ? 'Cancel' : editingCourt ? 'Cancel Edit' : 'Add a Court'}
           </button>
         </div>
 
@@ -427,13 +607,25 @@ function NearYou() {
               </div>
             </div>
 
-            {submitStatus && (
-              <div className={`submit-message ${submitStatus}`}>
-                {submitMessage}
-              </div>
+            {editingCourt ? (
+              <>
+                {editStatus && (
+                  <div className={`submit-message ${editStatus}`}>
+                    {editMessage}
+                  </div>
+                )}
+                <button type="submit" className="submit-btn">Update Court</button>
+              </>
+            ) : (
+              <>
+                {submitStatus && (
+                  <div className={`submit-message ${submitStatus}`}>
+                    {submitMessage}
+                  </div>
+                )}
+                <button type="submit" className="submit-btn">Submit Court</button>
+              </>
             )}
-
-            <button type="submit" className="submit-btn">Submit Court</button>
           </form>
         )}
       </div>
