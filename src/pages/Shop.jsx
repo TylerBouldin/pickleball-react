@@ -4,8 +4,6 @@ import ProductCard from '../components/ProductCard.jsx';
 import Modal from '../components/Modal.jsx';
 import '../css/Shop.css';
 
-const API_URL = process.env.REACT_APP_API_URL;
-
 function Shop() {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);

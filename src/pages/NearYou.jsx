@@ -27,6 +27,8 @@ function NearYou() {
     parking: '',
     fees: ''
   });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
   const [formErrors, setFormErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState(null);
   const [submitMessage, setSubmitMessage] = useState('');
@@ -54,7 +56,34 @@ function NearYou() {
       const courtsData = await courtsResponse.json();
       const groupsData = await groupsResponse.json();
 
-      setCourts(courtsData);
+      console.log('Fetched courts data:', courtsData);
+      if (courtsData.length > 0) {
+        console.log('First court structure:', courtsData[0]);
+        console.log('First court keys:', Object.keys(courtsData[0]));
+      }
+
+      const courtsWithId = courtsData.map(court => {
+        const processedCourt = {
+          name: court.name || '',
+          address: court.address || '',
+          hours: court.hours || '',
+          courts: court.courts || '',
+          amenities: court.amenities || '',
+          phone: court.phone || '',
+          parking: court.parking || '',
+          fees: court.fees || '',
+          picture: court.picture || '',
+          id: court.id || (court._id ? court._id.toString() : null)
+        };
+        return processedCourt;
+      }).filter(court => court.id);
+
+      console.log('Processed courts with IDs:', courtsWithId);
+      if (courtsWithId.length > 0) {
+        console.log('First processed court:', courtsWithId[0]);
+      }
+
+      setCourts(courtsWithId);
       setGroups(groupsData);
       setError(null);
     } catch (err) {
@@ -147,6 +176,41 @@ function NearYou() {
     }
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        setFormErrors(prev => ({
+          ...prev,
+          picture: 'Image must be less than 2MB'
+        }));
+        setSelectedFile(null);
+        setImagePreview('');
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        setFormErrors(prev => ({
+          ...prev,
+          picture: 'Please select an image file'
+        }));
+        setSelectedFile(null);
+        setImagePreview('');
+        return;
+      }
+      setSelectedFile(file);
+      setFormErrors(prev => ({
+        ...prev,
+        picture: ''
+      }));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -162,57 +226,100 @@ function NearYou() {
     }
 
     try {
+      const formDataToSend = new FormData();
+      Object.keys(formData).forEach(key => {
+        formDataToSend.append(key, formData[key]);
+      });
+      if (selectedFile) {
+        formDataToSend.append('picture', selectedFile);
+      }
+
+      console.log('Submitting form data:', Object.fromEntries(formDataToSend.entries()));
+
       const response = await fetch("https://pickle-server.onrender.com/api/courts", {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        body: formDataToSend,
         mode: 'cors'
       });
 
+      console.log('Response status:', response.status, response.statusText);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
       const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
+      let data;
+      
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+        console.log('Server response after POST:', data);
+        console.log('Court data in response:', data.court);
+        if (data.court) {
+          console.log('Court name:', data.court.name);
+          console.log('Court address:', data.court.address);
+          console.log('Court fields:', Object.keys(data.court));
+        }
+      } else {
         const text = await response.text();
-        throw new Error(`Server returned HTML instead of JSON. This usually means the POST endpoint isn't deployed yet. Response: ${text.substring(0, 100)}`);
+        console.error('Non-JSON response:', text.substring(0, 200));
+        throw new Error(`Server returned non-JSON response. Status: ${response.status}. Response: ${text.substring(0, 100)}`);
       }
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.details ? data.details.join(', ') : data.error || 'Failed to add court');
+      // Check if the request was successful (200-299 status codes)
+      if (response.status >= 200 && response.status < 300 && data.success !== false) {
+        // Success - show green message
+        setSubmitStatus('success');
+        setSubmitMessage('✓ Court added successfully! It will appear in the list below.');
+        
+        // Clear form
+        setFormData({
+          name: '',
+          address: '',
+          hours: '',
+          courts: '',
+          amenities: '',
+          phone: '',
+          parking: '',
+          fees: ''
+        });
+        setSelectedFile(null);
+        setImagePreview('');
+        setFormErrors({});
+        
+        // Refresh the court list
+        await fetchData();
+        
+        // Hide form and clear message after 5 seconds
+        setTimeout(() => {
+          setShowForm(false);
+          setSubmitStatus(null);
+          setSubmitMessage('');
+        }, 5000);
+      } else {
+        // Error response - show validation errors if present
+        if (data.details && Array.isArray(data.details)) {
+          const errorObj = {};
+          data.details.forEach(error => {
+            // Try to extract field name from error message
+            const fieldMatch = error.match(/(\w+) is required/i);
+            if (fieldMatch) {
+              errorObj[fieldMatch[1].toLowerCase()] = error;
+            }
+          });
+          if (Object.keys(errorObj).length > 0) {
+            setFormErrors(errorObj);
+          }
+        }
+        const errorMsg = data.details ? data.details.join(', ') : data.error || data.message || 'Failed to add court';
+        throw new Error(errorMsg);
       }
-
-      setSubmitStatus('success');
-      setSubmitMessage('Court added successfully! It will appear in the list below.');
-      
-      setFormData({
-        name: '',
-        address: '',
-        hours: '',
-        courts: '',
-        amenities: '',
-        phone: '',
-        parking: '',
-        fees: ''
-      });
-      
-      fetchData();
-      
-      setTimeout(() => {
-        setShowForm(false);
-        setSubmitStatus(null);
-        setSubmitMessage('');
-      }, 3000);
       
     } catch (err) {
+      console.error('Form submission error:', err);
       setSubmitStatus('error');
-      if (err.message.includes('fetch')) {
+      if (err.message.includes('fetch') || err.message.includes('Network')) {
         setSubmitMessage('Network error: Unable to reach the server. Please check your connection and ensure the server is running.');
       } else {
         setSubmitMessage(err.message || 'Unable to add court. Please try again later.');
       }
-      console.error('Form submission error:', err);
     }
   };
 
@@ -232,10 +339,17 @@ function NearYou() {
       parking: '',
       fees: ''
     });
+    setSelectedFile(null);
+    setImagePreview('');
   };
 
   const handleEdit = (court) => {
-    setEditingCourt(court);
+    const courtId = court.id || court._id || court._id?.toString();
+    const courtToEdit = {
+      ...court,
+      id: courtId
+    };
+    setEditingCourt(courtToEdit);
     setFormData({
       name: court.name || '',
       address: court.address || '',
@@ -246,6 +360,8 @@ function NearYou() {
       parking: court.parking || '',
       fees: court.fees || ''
     });
+    setSelectedFile(null);
+    setImagePreview(court.picture || '');
     setShowForm(true);
     setFormErrors({});
     setSubmitStatus(null);
@@ -266,7 +382,8 @@ function NearYou() {
     }
 
     try {
-      const response = await fetch(`https://pickle-server.onrender.com/api/courts/${courtId}`, {
+      const idToDelete = courtId?.toString() || courtId;
+      const response = await fetch(`https://pickle-server.onrender.com/api/courts/${idToDelete}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -279,7 +396,7 @@ function NearYou() {
       if (response.status === 200) {
         setDeleteStatus('success');
         setDeleteMessage('Court deleted successfully!');
-        fetchData();
+        await fetchData();
         setTimeout(() => {
           setDeleteStatus(null);
           setDeleteMessage('');
@@ -317,12 +434,20 @@ function NearYou() {
     }
 
     try {
-      const response = await fetch(`https://pickle-server.onrender.com/api/courts/${editingCourt.id}`, {
+      const formDataToSend = new FormData();
+      Object.keys(formData).forEach(key => {
+        formDataToSend.append(key, formData[key]);
+      });
+      if (selectedFile) {
+        formDataToSend.append('picture', selectedFile);
+      } else if (imagePreview && !selectedFile) {
+        formDataToSend.append('picture', imagePreview);
+      }
+
+      const courtId = editingCourt.id || editingCourt._id || editingCourt._id?.toString();
+      const response = await fetch(`https://pickle-server.onrender.com/api/courts/${courtId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        body: formDataToSend,
         mode: 'cors'
       });
 
@@ -330,7 +455,8 @@ function NearYou() {
       
       if (response.status === 200) {
         if (contentType && contentType.includes('application/json')) {
-          await response.json();
+          const data = await response.json();
+          console.log('Server response after PUT:', data);
           setEditStatus('success');
           setEditMessage('Court updated successfully!');
           
@@ -345,8 +471,10 @@ function NearYou() {
             parking: '',
             fees: ''
           });
+          setSelectedFile(null);
+          setImagePreview('');
           
-          fetchData();
+          await fetchData();
           
           setTimeout(() => {
             setShowForm(false);
@@ -408,27 +536,32 @@ function NearYou() {
           <div className="address-box">
             <h3>Popular Local Courts</h3>
             <div id="courts-container">
-              {courts.map(court => (
-                <div key={court.id} className="court-item-wrapper">
-                  <div onClick={() => handleCourtClick(court)} className="clickable-item">
-                    <CourtCard 
-                      name={court.name}
-                      address={court.address}
-                      hours={court.hours}
-                      courts={court.courts}
-                      amenities={court.amenities}
-                    />
+              {courts.map(court => {
+                const courtId = court.id || court._id || (court._id ? court._id.toString() : null);
+                if (!courtId) return null;
+                return (
+                  <div key={courtId} className="court-item-wrapper">
+                    <div onClick={() => handleCourtClick(court)} className="clickable-item">
+                      <CourtCard 
+                        name={court.name || ''}
+                        address={court.address || ''}
+                        hours={court.hours || ''}
+                        courts={court.courts || ''}
+                        amenities={court.amenities || ''}
+                        image={court.picture || ''}
+                      />
+                    </div>
+                    <div className="court-actions">
+                      <button onClick={(e) => { e.stopPropagation(); handleEdit(court); }} className="edit-btn">
+                        Edit
+                      </button>
+                      <button onClick={(e) => { e.stopPropagation(); handleDelete(courtId); }} className="delete-btn">
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                  <div className="court-actions">
-                    <button onClick={(e) => { e.stopPropagation(); handleEdit(court); }} className="edit-btn">
-                      Edit
-                    </button>
-                    <button onClick={(e) => { e.stopPropagation(); handleDelete(court.id); }} className="delete-btn">
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             {deleteStatus && (
               <div className={`submit-message ${deleteStatus}`}>
@@ -607,6 +740,29 @@ function NearYou() {
               </div>
             </div>
 
+            <div className="form-row">
+              <div className="form-group full-width">
+                <label htmlFor="picture">Upload Image</label>
+                <input
+                  type="file"
+                  id="picture"
+                  name="picture"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+                {formErrors.picture && <span className="error-message">{formErrors.picture}</span>}
+                {imagePreview && (
+                  <div style={{ marginTop: '10px' }}>
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '8px' }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
             {editingCourt ? (
               <>
                 {editStatus && (
@@ -618,12 +774,12 @@ function NearYou() {
               </>
             ) : (
               <>
+                <button type="submit" className="submit-btn">Submit Court</button>
                 {submitStatus && (
                   <div className={`submit-message ${submitStatus}`}>
                     {submitMessage}
                   </div>
                 )}
-                <button type="submit" className="submit-btn">Submit Court</button>
               </>
             )}
           </form>
@@ -633,6 +789,13 @@ function NearYou() {
       <Modal isOpen={isCourtModalOpen} onClose={closeCourtModal} title={selectedCourt?.name || ''}>
         {selectedCourt && (
           <div>
+            {selectedCourt.picture && (
+              <img 
+                src={selectedCourt.picture} 
+                alt={selectedCourt.name}
+                style={{ width: '100%', maxWidth: '500px', marginBottom: '20px', borderRadius: '8px' }}
+              />
+            )}
             <div className="modal-info-grid">
               <div className="modal-info-item">
                 <strong>Address</strong>
